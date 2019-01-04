@@ -45,10 +45,10 @@ val col2 = new Column("FM_CONSUMED")
 
 val columns = List(col1, col2)
 
-var result = columns
+val result = columns
   .flatMap { column =>
     if (column.label.startsWith("FU_CONSUMED")) {
-      var freeUnits = Map(("ALLOC_ID" -> "75049690"), ("QTY" -> "4148"))
+      val freeUnits = Map(("ALLOC_ID" -> "75049690"), ("QTY" -> "4148"))
       List((column.label + "_new", Map("TOTAL_QTY" -> "4148", "FU" -> freeUnits)),
         (column.label, "4148"))
     } else if (column.label.startsWith("FM_")) {
@@ -58,10 +58,10 @@ var result = columns
     }
   }.toMap
 
-var action =  "INSERT"
+val action =  "INSERT"
 
 
-var mapResult = Map("billingEvent" -> Map("action" -> action, "columns" -> result))
+val mapResult = Map("billingEvent" -> Map("action" -> action, "columns" -> result))
 
 JsonUtil.toJsonNode(mapResult)
 
