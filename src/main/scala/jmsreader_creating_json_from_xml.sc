@@ -126,7 +126,7 @@ def handleBillingEvent(xml: Elem): Event = {
         val children = column.child
         print("Number of children: " + children.length + "\n\n")
         print("These are the children: " + children + "\n\n")
-        val freeUnits = children.map(child =>
+        val freeUnits = children.flatMap(child =>
           if(child.label.startsWith("FU")){
             print("This is a child: " + child + "\n")
             val qty = (child \ "@QTY").find {node => true}.getOrElse("Value not set")
@@ -138,7 +138,6 @@ def handleBillingEvent(xml: Elem): Event = {
           }else{
             None
           })
-          .flatten
 
         print("This is the list of freeUnits: " + freeUnits + "\n\n")
         val totalQty = nodeValue((column \ "@TOTAL_QTY").find {node => true})
@@ -147,8 +146,7 @@ def handleBillingEvent(xml: Elem): Event = {
         print("This is the fake freeUnits: " + fakeUnits + "\n\n")
 
         List(
-//          (column.label + "_NEW", Map("TOTAL_QTY" -> totalQty, "FU" -> freeUnits))
-          (column.label + "_new", Map("TOTAL_QTY" -> "4148", "FU" -> freeUnits)),
+          (column.label + "_NEW", Map("TOTAL_QTY" -> totalQty, "FU" -> freeUnits)),
           (column.label, totalQty))
 
       } else if (column.label.startsWith("FM_")) {
