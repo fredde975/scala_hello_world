@@ -5,7 +5,8 @@ import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import scala.xml.{Elem, Node, XML}
 
 
-val testXml = """<USAGE type="INSERT" ts="2014-03-04 15:09:34">
+val testXml =
+  """<USAGE type="INSERT" ts="2014-03-04 15:09:34">
   <PERIOD_START_DATE>2014-02-01 00:00:00</PERIOD_START_DATE>
   <FM_CONSUMED TOTAL_AMT=".55" TOTAL_AMT_WITH_VAT=".69">
     <FM ALLOC_ID="70990600" FM_CATEGORY="8" AMT=".55" AMT_WITH_VAT=".69"/>
@@ -93,7 +94,7 @@ object JsonUtil {
 }
 
 case class Event(eventType: String,
-                 startDate : String,
+                 startDate: String,
                  jsonNode: JsonNode)
 
 val columnFilter = List("A_PARTY_ID", "B_PARTY_ID", "CHARGE_ID", "EVENT_DATE", "DURATION", "MAIN_UC_LABEL", "MSISDN", "PERIOD_END_DATE", "PERIOD_START_DATE", "SUB_UC_LABEL", "NORMALISED_EVENT_ID", "QTY", "QTY_UOM", "AMT", "AMT_WITH_VAT", "INV_TXT", "FM_CONSUMED", "FU_CONSUMED", "NETWORK_ID")
@@ -118,32 +119,36 @@ def handleBillingEvent(xml: Elem): Event = {
       columnFilter.contains(column.label)
   }.flatMap {
     column =>
-      println("This is column: "+ column + "\n\n")
+      println("This is column: " + column + "\n\n")
       if (column.label.startsWith("FU_CONSUMED")) {
-//        val freeUnits = Map(("ALLOC_ID" -> "75049690"), ("QTY" -> "4148"))
-//        List((column.label + "_new", Map("TOTAL_QTY" -> "4148", "FU" -> freeUnits)),
-//          (column.label, "4148"))
         val children = column.child
         print("Number of children: " + children.length + "\n\n")
         print("These are the children: " + children + "\n\n")
         val freeUnits = children.flatMap(child =>
-          if(child.label.startsWith("FU")){
+          if (child.label.startsWith("FU")) {
             print("This is a child: " + child + "\n")
-            val qty = (child \ "@QTY").find {node => true}.getOrElse("Value not set")
-            val allocId = (child \ "@ALLOC_ID").find {node => true}.getOrElse("Value not set")
 
-            print("ALLOC_ID = "  + allocId + "\n")
+
+            val qty = (child \ "@QTY").find { node =>
+              print("This is the value of the node: " + node + "\n\n")
+              print("This is the type of the node: " + node.getClass + "\n\n")
+              print("This is the type of the child: " + child.getClass + "\n\n")
+              true
+            }.getOrElse("Value not set")
+
+            print("This is the type of qty parameter: " + qty.getClass + "\n\n")
+
+            val allocId = (child \ "@ALLOC_ID").find { node => true }.getOrElse("Value not set")
+
+            print("ALLOC_ID = " + allocId + "\n")
             print("QTY = " + qty + "\n")
             Some(Map(("ALLOC_ID" -> allocId.toString), ("QTY" -> qty.toString)))
-          }else{
+          } else {
             None
           })
 
         print("This is the list of freeUnits: " + freeUnits + "\n\n")
-        val totalQty = nodeValue((column \ "@TOTAL_QTY").find {node => true})
-
-        val fakeUnits = List(Map("a" -> "b", "c" -> "d"), Map("a" -> "b", "c" -> "d"))
-        print("This is the fake freeUnits: " + fakeUnits + "\n\n")
+        val totalQty = nodeValue((column \ "@TOTAL_QTY").find { node => true })
 
         List(
           (column.label + "_NEW", Map("TOTAL_QTY" -> totalQty, "FU" -> freeUnits)),
@@ -166,6 +171,8 @@ def handleBillingEvent(xml: Elem): Event = {
   Event("BillingEvent" + action, billPeriodStartDate, JsonUtil.toJsonNode(Map("billingEvent" -> Map("action" -> action, "columns" -> columns))))
 }
 
+
+
 def xmlToJSON(jsonEvent: String): Event = {
   val xml = XML.loadString(jsonEvent)
   xml match {
@@ -177,4 +184,5 @@ def xmlToJSON(jsonEvent: String): Event = {
       null
   }
 }
+
 
