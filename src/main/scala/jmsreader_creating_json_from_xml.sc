@@ -134,7 +134,7 @@ def handleBillingEvent(xml: Elem): Event = {
 
             print("ALLOC_ID = "  + allocId + "\n")
             print("QTY = " + qty + "\n")
-            Some(Map(("ALLOC_ID" -> allocId), ("QTY" -> qty)))
+            Some(Map(("ALLOC_ID" -> allocId.toString), ("QTY" -> qty.toString)))
           }else{
             None
           })
@@ -143,10 +143,13 @@ def handleBillingEvent(xml: Elem): Event = {
         print("This is the list of freeUnits: " + freeUnits + "\n\n")
         val totalQty = nodeValue((column \ "@TOTAL_QTY").find {node => true})
 
+        val fakeUnits = List(Map("a" -> "b", "c" -> "d"), Map("a" -> "b", "c" -> "d"))
+        print("This is the fake freeUnits: " + fakeUnits + "\n\n")
+
         List(
-          (column.label, totalQty),
-          (column.label + "_NEW", Map("TOTAL_QTY" -> totalQty))
-        )
+//          (column.label + "_NEW", Map("TOTAL_QTY" -> totalQty, "FU" -> freeUnits))
+          (column.label + "_new", Map("TOTAL_QTY" -> "4148", "FU" -> freeUnits)),
+          (column.label, totalQty))
 
       } else if (column.label.startsWith("FM_")) {
         List(("FM_TOTAL_AMOUNT_WITH_VAT", nodeValue((column \ "@TOTAL_AMT_WITH_VAT").find {

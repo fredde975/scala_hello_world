@@ -49,7 +49,9 @@ val result = columns
   .flatMap { column =>
     if (column.label.startsWith("FU_CONSUMED")) {
       val freeUnits = Map(("ALLOC_ID" -> "75049690"), ("QTY" -> "4148"))
-      List((column.label + "_new", Map("TOTAL_QTY" -> "4148", "FU" -> freeUnits)),
+      print("This is the list of freeUnits: " + freeUnits + "\n\n")
+      List(
+        (column.label + "_new", Map("TOTAL_QTY" -> "4148", "FU" -> freeUnits)),
         (column.label, "4148"))
     } else if (column.label.startsWith("FM_")) {
       List((column.label, "på"))
